@@ -8,7 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
-
+using System.Net;
+using System.Net.NetworkInformation;
 using System.Diagnostics;
 
 namespace hddiag
@@ -18,6 +19,44 @@ namespace hddiag
         public Form1()
         {
             InitializeComponent();
+        }
+        
+        private bool RunAutomaticDiagnoses()
+        {
+            bool issuesDetected = false;
+
+            NetworkInterface wifiAdapter = Diagnosis.GetAdapter("Wi-Fi");
+
+            if(wifiAdapter == null)
+            {
+                string message =
+                    "Detected: Failed to get the wi-fi adapter.\n\n" +
+                    "The interface may be offline or nonexistant.\n\n" +
+                    "In the main dialog, choose \"Manage Network Adapters\"" +
+                    "and ensure the adapter named \"Wi-Fi\" exists, and is enabled.\n\n" +
+                    "If the problem persists, create a report to send\n" +
+                    "to your support staff by choosing \"Generate Text Report.\"";
+
+                MessageBox.Show(message, "HD Diagnostic Utility");
+
+                //if we can't get the interface, there's not
+                //much other diagnosis we can do
+                return true;
+            }
+
+            if(Diagnosis.DiagnoseIllegalDNSServers(wifiAdapter))
+            {
+                string message =
+                    "Detected: DNS servers are not set to be automatically acquired.\n\n" +
+                    "In the main dialog, choose \"Reset DNS Servers\" under\n" +
+                    "\"Troubleshooting Options.\"";
+
+                MessageBox.Show(message, "HD Diagnostic Utility");
+
+                issuesDetected = true;
+            }
+
+            return issuesDetected;
         }
 
         //helper function to initialize a Process object
@@ -35,12 +74,15 @@ namespace hddiag
         private void DisableAllButtons()
         {
             button6.BackColor = Color.Orange;
+            button8.BackColor = Color.Orange;
             button1.Enabled = false;
             button2.Enabled = false;
             button3.Enabled = false;
             button4.Enabled = false;
             button5.Enabled = false;
             button6.Enabled = false;
+            button7.Enabled = false;
+            button8.Enabled = false;
             label4.Visible = true;
             label4.Enabled = true;
         }
@@ -56,13 +98,16 @@ namespace hddiag
         //and hide the "in progress" text
         private void EnableAllButtons()
         {
-            button6.BackColor = Color.Yellow;
+            button6.BackColor = Color.Lime;
+            button8.BackColor = Color.Yellow;
             button1.Enabled = true;
             button2.Enabled = true;
             button3.Enabled = true;
             button4.Enabled = true;
             button5.Enabled = true;
             button6.Enabled = true;
+            button7.Enabled = true;
+            button8.Enabled = true;
             label4.Visible = false;
         }
 
@@ -196,11 +241,11 @@ namespace hddiag
                 "arp -a",
                 "netstat -esr",
                 "netstat -na",
-                "nbtstat -n",
                 "net use",
                 "net user",
                 "net view 127.0.0.1",
                 "net session",
+                "nbtstat -n",
                 "nbtstat -S",
                 "netsh interface ipv6 show route",
                 "netsh interface ipv6 show neighbors",
@@ -250,6 +295,37 @@ namespace hddiag
             //hide the progress bar again
             progressBar1.Value = 0;
             progressBar1.Visible = false;
+
+            EnableAllButtons();
+        }
+
+        //manage network adapters
+        private void button7_Click(object sender, EventArgs e)
+        {
+            //just launch ncpa.cpl, there is probably
+            //a better way to do this, but it works, so who cares
+            Process.Start("ncpa.cpl");
+        }
+
+        //automatic diagnosis
+        private void button8_Click(object sender, EventArgs e)
+        {
+            DisableAllButtons();
+
+            bool issuesDetected = RunAutomaticDiagnoses();
+
+            GreyProgressText();
+
+            if(!issuesDetected)
+            {
+                string message =
+                    "The automatic diagnosis did not detect any issues.\n\n" +
+                    "If you are still experiencing connectivity problems,\n" +
+                    "create a report to send to your support staff by\n" +
+                    "choosing \"Generate Text Report.\"";
+
+                MessageBox.Show(message);
+            }
 
             EnableAllButtons();
         }

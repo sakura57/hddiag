@@ -30,6 +30,7 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.panel1 = new System.Windows.Forms.Panel();
+            this.button7 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
@@ -42,6 +43,8 @@
             this.button6 = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
+            this.button8 = new System.Windows.Forms.Button();
+            this.label5 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
@@ -49,6 +52,9 @@
             // panel1
             // 
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Controls.Add(this.label5);
+            this.panel1.Controls.Add(this.button8);
+            this.panel1.Controls.Add(this.button7);
             this.panel1.Controls.Add(this.button5);
             this.panel1.Controls.Add(this.button4);
             this.panel1.Controls.Add(this.button3);
@@ -57,8 +63,18 @@
             this.panel1.Controls.Add(this.label1);
             this.panel1.Location = new System.Drawing.Point(12, 12);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(173, 210);
+            this.panel1.Size = new System.Drawing.Size(346, 241);
             this.panel1.TabIndex = 1;
+            // 
+            // button7
+            // 
+            this.button7.Location = new System.Drawing.Point(7, 191);
+            this.button7.Name = "button7";
+            this.button7.Size = new System.Drawing.Size(157, 23);
+            this.button7.TabIndex = 7;
+            this.button7.Text = "Manage Network Adapters";
+            this.button7.UseVisualStyleBackColor = true;
+            this.button7.Click += new System.EventHandler(this.button7_Click);
             // 
             // button5
             // 
@@ -126,9 +142,9 @@
             this.panel2.Controls.Add(this.label3);
             this.panel2.Controls.Add(this.button6);
             this.panel2.Controls.Add(this.label2);
-            this.panel2.Location = new System.Drawing.Point(191, 12);
+            this.panel2.Location = new System.Drawing.Point(364, 12);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(173, 210);
+            this.panel2.Size = new System.Drawing.Size(173, 241);
             this.panel2.TabIndex = 0;
             // 
             // progressBar1
@@ -151,7 +167,7 @@
             // 
             // button6
             // 
-            this.button6.BackColor = System.Drawing.Color.Yellow;
+            this.button6.BackColor = System.Drawing.Color.Lime;
             this.button6.ForeColor = System.Drawing.SystemColors.ControlText;
             this.button6.Location = new System.Drawing.Point(6, 46);
             this.button6.Name = "button6";
@@ -176,18 +192,38 @@
             this.label4.Enabled = false;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.ForeColor = System.Drawing.Color.Red;
-            this.label4.Location = new System.Drawing.Point(79, 235);
+            this.label4.Location = new System.Drawing.Point(175, 263);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(225, 13);
             this.label4.TabIndex = 2;
             this.label4.Text = "Command is in progress. Please wait...";
             this.label4.Visible = false;
             // 
+            // button8
+            // 
+            this.button8.BackColor = System.Drawing.Color.Yellow;
+            this.button8.Location = new System.Drawing.Point(181, 46);
+            this.button8.Name = "button8";
+            this.button8.Size = new System.Drawing.Size(156, 23);
+            this.button8.TabIndex = 8;
+            this.button8.Text = "Automatic Diagnosis";
+            this.button8.UseVisualStyleBackColor = false;
+            this.button8.Click += new System.EventHandler(this.button8_Click);
+            // 
+            // label5
+            // 
+            this.label5.Location = new System.Drawing.Point(176, 75);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(165, 76);
+            this.label5.TabIndex = 4;
+            this.label5.Text = "Will attempt to diagnose common wireless connection problems. If a known issue is" +
+    " detected, a procedure for fixing the problem will be displayed.";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(376, 257);
+            this.ClientSize = new System.Drawing.Size(549, 285);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
@@ -219,6 +255,9 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.ProgressBar progressBar1;
+        private System.Windows.Forms.Button button7;
+        private System.Windows.Forms.Button button8;
+        private System.Windows.Forms.Label label5;
     }
 }
 
