@@ -232,7 +232,7 @@ namespace hddiag
             progressBar1.Visible = true;
 
             //These commands will be sent to cmd.exe, the pipe
-            //into helpdesk.txt is added automatically
+            //into helpdesk.txt is added by ExecuteLoggedCommand
             string[] commands = new string[]
             {
                 "date /t",
@@ -251,6 +251,8 @@ namespace hddiag
                 "netsh interface ipv6 show neighbors",
                 "nslookup www.rpi.edu",
                 "nslookup www.cnn.com",
+                "netsh wlan show interfaces",
+                "netsh wlan show networks",
                 "netsh wlan show profiles",
                 "date /t",
                 "time /t"
