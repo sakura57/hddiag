@@ -34,7 +34,7 @@ namespace hddiag
         //and show the "in progress" text
         private void DisableAllButtons()
         {
-            button6.BackColor = Color.Yellow;
+            button6.BackColor = Color.Orange;
             button1.Enabled = false;
             button2.Enabled = false;
             button3.Enabled = false;
@@ -56,7 +56,7 @@ namespace hddiag
         //and hide the "in progress" text
         private void EnableAllButtons()
         {
-            button6.BackColor = Color.Lime;
+            button6.BackColor = Color.Yellow;
             button1.Enabled = true;
             button2.Enabled = true;
             button3.Enabled = true;
@@ -66,23 +66,56 @@ namespace hddiag
             label4.Visible = false;
         }
 
+        /*
+         * Start cmd.exe with the given command as
+         * an argument.
+         */
+        private void ExecuteCommand(string cmd)
+        {
+            Process proc = beginCommand();
+            proc.StartInfo.Arguments = "/C " + cmd;
+            proc.Start();
+            proc.WaitForExit();
+        }
+
+        /*
+         * The parameter to this function will be
+         * the first line in helpdesk.txt. If the file
+         * exists already, it will be overwritten;
+         * if it does not exist, it will be created.
+         */
+        private void InitializeLog(string cmd)
+        {
+            Process proc = beginCommand();
+            proc.StartInfo.Arguments = "/C " + cmd + " > \"%userprofile%\\Desktop\\helpdesk.txt\" 2>&1";
+            proc.Start();
+            proc.WaitForExit();
+        }
+
+        /*
+         * Start cmd.exe with the given command as
+         * an argument, and pipe the output into
+         * helpdesk.txt.
+         */
+        private void ExecuteLoggedCommand(string cmd)
+        {
+            Process proc = beginCommand();
+            proc.StartInfo.Arguments = "/C " + cmd + " >> \"%userprofile%\\Desktop\\helpdesk.txt\" 2>&1";
+            proc.Start();
+            proc.WaitForExit();
+        }
+
         //bump up rpi_wpa2 and eduroam priority
         private void button1_Click(object sender, EventArgs e)
         {
             DisableAllButtons();
 
-            Process proc1 = beginCommand();
-            Process proc2 = beginCommand();
-            proc1.StartInfo.Arguments = "/C netsh wlan set profileorder name=\"rpi_wpa2\" interface=\"Wi-Fi\" priority=1";
-            proc2.StartInfo.Arguments = "/C netsh wlan set profileorder name=\"eduroam\" interface=\"Wi-Fi\" priority=2";
-            proc1.Start();
-            proc1.WaitForExit();
-            proc2.Start();
-            proc2.WaitForExit();
+            ExecuteCommand("netsh wlan set profileorder name=\"rpi_wpa2\" interface=\"Wi-Fi\" priority=1");
+            ExecuteCommand("netsh wlan set profileorder name=\"eduroam\" interface=\"Wi-Fi\" priority=2");
 
             GreyProgressText();
 
-            MessageBox.Show(this, "Command completed successfully.");
+            MessageBox.Show(this, "Command completed successfully.", "HD Diagnostic Utility");
 
             EnableAllButtons();
         }
@@ -91,23 +124,14 @@ namespace hddiag
         private void button2_Click(object sender, EventArgs e)
         {
             DisableAllButtons();
-
-            Process proc1 = beginCommand();
-            Process proc2 = beginCommand();
-            Process proc3 = beginCommand();
-            proc1.StartInfo.Arguments = "/C netsh int ipv6 isatap set state disabled";
-            proc2.StartInfo.Arguments = "/C netsh int ipv6 6to4 set state disabled";
-            proc3.StartInfo.Arguments = "/C netsh int teredo set state disabled";
-            proc1.Start();
-            proc1.WaitForExit();
-            proc2.Start();
-            proc2.WaitForExit();
-            proc3.Start();
-            proc3.WaitForExit();
+            
+            ExecuteCommand("netsh int ipv6 isatap set state disabled");
+            ExecuteCommand("netsh int ipv6 6to4 set state disabled");
+            ExecuteCommand("netsh int teredo set state disabled");
 
             GreyProgressText();
 
-            MessageBox.Show(this, "Command completed successfully.");
+            MessageBox.Show(this, "Command completed successfully.", "HD Diagnostic Utility");
 
             EnableAllButtons();
         }
@@ -116,15 +140,12 @@ namespace hddiag
         private void button3_Click(object sender, EventArgs e)
         {
             DisableAllButtons();
-
-            Process proc1 = beginCommand();
-            proc1.StartInfo.Arguments = "/C netsh interface ipv6 set privacy state=disabled";
-            proc1.Start();
-            proc1.WaitForExit();
+            
+            ExecuteCommand("netsh interface ipv6 set privacy state=disabled");
 
             GreyProgressText();
 
-            MessageBox.Show(this, "Command completed successfully.");
+            MessageBox.Show(this, "Command completed successfully.", "HD Diagnostic Utility");
 
             EnableAllButtons();
         }
@@ -134,22 +155,13 @@ namespace hddiag
         {
             DisableAllButtons();
 
-            Process proc1 = beginCommand();
-            Process proc2 = beginCommand();
-            Process proc3 = beginCommand();
-            proc1.StartInfo.Arguments = "/C ipconfig /flushdns";
-            proc2.StartInfo.Arguments = "/C ipconfig /release";
-            proc3.StartInfo.Arguments = "/C ipconfig /renew";
-            proc1.Start();
-            proc1.WaitForExit();
-            proc2.Start();
-            proc2.WaitForExit();
-            proc3.Start();
-            proc3.WaitForExit();
+            ExecuteCommand("ipconfig /flushdns");
+            ExecuteCommand("ipconfig /release");
+            ExecuteCommand("ipconfig /renew");
 
             GreyProgressText();
 
-            MessageBox.Show(this, "Command completed successfully.");
+            MessageBox.Show(this, "Command completed successfully.", "HD Diagnostic Utility");
 
             EnableAllButtons();
         }
@@ -158,15 +170,12 @@ namespace hddiag
         private void button5_Click(object sender, EventArgs e)
         {
             DisableAllButtons();
-
-            Process proc1 = beginCommand();
-            proc1.StartInfo.Arguments = "/C netsh interface ip set dns \"Wi-Fi\" dhcp";
-            proc1.Start();
-            proc1.WaitForExit();
+            
+            ExecuteCommand("netsh interface ip set dns \"Wi-Fi\" dhcp");
 
             GreyProgressText();
 
-            MessageBox.Show(this, "Command completed successfully.");
+            MessageBox.Show(this, "Command completed successfully.", "HD Diagnostic Utility");
 
             EnableAllButtons();
         }
@@ -202,27 +211,25 @@ namespace hddiag
                 "time /t"
             };
 
+            //initialize the progress bar, maximum steps
+            //will equal number of commands
             progressBar1.Maximum = commands.Length;
             progressBar1.Step = 1;
 
-            Process proc = beginCommand();
-            proc.StartInfo.Arguments = "/C echo HD Diagnostic Utility 0.1a > \"%userprofile%\\Desktop\\helpdesk.txt\" 2>&1";
-            proc.Start();
-            proc.WaitForExit();
+            //begin the log
+            InitializeLog("echo HD Diagnostic Utility 0.2a");
             
             foreach(string cmd in commands)
             {
+                //before we run the actual command, print what the command is
+                ExecuteLoggedCommand("echo.");
                 string echocmd = "echo -+ RUNNING \"" + cmd + "\"";
-                proc = beginCommand();
-                proc.StartInfo.Arguments = "/C " + echocmd + " >> \"%userprofile%\\Desktop\\helpdesk.txt\" 2>&1";
-                proc.Start();
-                proc.WaitForExit();
+                ExecuteLoggedCommand(echocmd);
 
-                proc = beginCommand();
-                proc.StartInfo.Arguments = "/C " + cmd + " >> \"%userprofile%\\Desktop\\helpdesk.txt\" 2>&1";
-                proc.Start();
-                proc.WaitForExit();
+                //now run the command
+                ExecuteLoggedCommand(cmd);
 
+                //progress bar is stepped each command
                 progressBar1.PerformStep();
             }
 
@@ -230,15 +237,17 @@ namespace hddiag
 
             //verify that the file was actually created
             string desktopFolder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            if (File.Exists(Path.Combine(desktopFolder, "helpdesk.txt")))
+
+            if(File.Exists(Path.Combine(desktopFolder, "helpdesk.txt")))
             {
-                MessageBox.Show(this, "Wrote text report successfully.");
+                MessageBox.Show(this, "Successfully generated text report.\nThe report has been placed on your desktop.", "HD Diagnostic Utility");
             }
             else
             {
-                MessageBox.Show(this, "Error: Failed to generate text report.\nEnsure you have write permissions for the desktop.");
+                MessageBox.Show(this, "Error: Failed to generate text report.\nEnsure you have write permissions for the desktop.", "HD Diagnostic Utility");
             }
 
+            //hide the progress bar again
             progressBar1.Value = 0;
             progressBar1.Visible = false;
 

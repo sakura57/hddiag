@@ -37,11 +37,11 @@
             this.button1 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.label3 = new System.Windows.Forms.Label();
             this.button6 = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
@@ -131,19 +131,27 @@
             this.panel2.Size = new System.Drawing.Size(173, 210);
             this.panel2.TabIndex = 0;
             // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(7, 162);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(156, 23);
+            this.progressBar1.TabIndex = 3;
+            this.progressBar1.Visible = false;
+            // 
             // label3
             // 
             this.label3.Location = new System.Drawing.Point(3, 75);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(165, 76);
             this.label3.TabIndex = 2;
-            this.label3.Text = "A report file, named helpdesk.txt, will be created on your desktop. This report c" +
-    "ontains useful diagnostic information and can be provided to your support staff." +
-    "";
+            this.label3.Text = "A report file, named helpdesk.txt, will be created on your desktop.\r\nThis report " +
+    "will contain useful diagnostic information and can be provided to your support s" +
+    "taff.";
             // 
             // button6
             // 
-            this.button6.BackColor = System.Drawing.Color.Lime;
+            this.button6.BackColor = System.Drawing.Color.Yellow;
             this.button6.ForeColor = System.Drawing.SystemColors.ControlText;
             this.button6.Location = new System.Drawing.Point(6, 46);
             this.button6.Name = "button6";
@@ -174,14 +182,6 @@
             this.label4.TabIndex = 2;
             this.label4.Text = "Command is in progress. Please wait...";
             this.label4.Visible = false;
-            // 
-            // progressBar1
-            // 
-            this.progressBar1.Location = new System.Drawing.Point(7, 162);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(156, 23);
-            this.progressBar1.TabIndex = 3;
-            this.progressBar1.Visible = false;
             // 
             // Form1
             // 
