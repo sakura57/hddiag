@@ -206,14 +206,20 @@ namespace hddiag
             progressBar1.Step = 1;
 
             Process proc = beginCommand();
-            proc.StartInfo.Arguments = "/C echo HD Diagnostic Utility 0.1a > \"%userprofile%\\Desktop\\helpdesk.txt\"";
+            proc.StartInfo.Arguments = "/C echo HD Diagnostic Utility 0.1a > \"%userprofile%\\Desktop\\helpdesk.txt\" 2>&1";
             proc.Start();
             proc.WaitForExit();
             
             foreach(string cmd in commands)
             {
+                string echocmd = "echo -+ RUNNING \"" + cmd + "\"";
                 proc = beginCommand();
-                proc.StartInfo.Arguments = "/C " + cmd + " >> \"%userprofile%\\Desktop\\helpdesk.txt\"";
+                proc.StartInfo.Arguments = "/C " + echocmd + " >> \"%userprofile%\\Desktop\\helpdesk.txt\" 2>&1";
+                proc.Start();
+                proc.WaitForExit();
+
+                proc = beginCommand();
+                proc.StartInfo.Arguments = "/C " + cmd + " >> \"%userprofile%\\Desktop\\helpdesk.txt\" 2>&1";
                 proc.Start();
                 proc.WaitForExit();
 
