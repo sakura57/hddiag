@@ -51,9 +51,20 @@ configured Windows installation.
   
 * Disable Tunnelling - If you've never heard of Teredo tunnelling or don't use it, it's best to disable it. Windows can get
   confused if tunnelling is enabled, and become unsure of which adapter to route traffic through.
+  You may be advised to choose this option by Automatic Diagnosis.
 
 * Disable IPv6 Privacy - Privacy addressing can cause a number of issues, namely: it can exhaust the IP address pool on
   a network; and some applications with long-running sessions can get confused. In addition, it doesn't actually offer
   a real privacy advantage, at least on RPI's network.
 
 * Manage Network Adapters - Opens the Network Adapters location in Control Panel.
+  You may be advised to choose this option by Automatic Diagnosis.
+
+* Disable NetBIOS over TCP/IP - This option will be more useful to those not using an RPI laptop, or not using an RPI image.
+  You may be advised to choose this option by Automatic Diagnosis.
+
+* Enable DHCP - If you or a program configured your wireless interface to use a static IP which is not in an RPI address
+  range, or to use an incorrect default gateway, you may experience connection problems. This option will configure the
+  interface to always obtain an IP address and default gateway automatically, using DHCP.
+  You may be advised to choose this option by Automatic Diagnosis.
+  

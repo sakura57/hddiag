@@ -11,6 +11,7 @@ using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Diagnostics;
+using Microsoft.Win32;
 
 namespace hddiag
 {
@@ -26,8 +27,10 @@ namespace hddiag
             bool issuesDetected = false;
 
             NetworkInterface wifiAdapter = Diagnosis.GetAdapter("Wi-Fi");
+            IPForwardTable routingTable = Diagnosis.GetIPForwardTable();
+            IPAddress localIP = Diagnosis.GetLocalIP();
 
-            if(wifiAdapter == null)
+            if (wifiAdapter == null)
             {
                 string message =
                     "Detected: Failed to get the wi-fi adapter.\n\n" +
@@ -44,12 +47,98 @@ namespace hddiag
                 return true;
             }
 
+            if(Diagnosis.DiagnoseDHCPDisabled(wifiAdapter))
+            {
+                string message =
+                    "Detected: DHCP is disabled.\n\n" +
+                    "In the main dialog, choose \"Enable DHCP\" under\n" +
+                    "\"Troubleshooting Options.\"\n" +
+                    "If the problem persists, try choosing Automatic Diagnosis\n"+
+                    "again.\n\n" +
+                    "If the problem still persists, create a report to send\n" +
+                    "to your support staff by choosing \"Generate Text Report.\"";
+
+                MessageBox.Show(message, "HD Diagnostic Utility");
+
+                //DHCP should be enabled
+                //before we attempt to solve other problems
+                return true;
+            }
+
             if(Diagnosis.DiagnoseIllegalDNSServers(wifiAdapter))
             {
                 string message =
                     "Detected: DNS servers are not set to be automatically acquired.\n\n" +
                     "In the main dialog, choose \"Reset DNS Servers\" under\n" +
                     "\"Troubleshooting Options.\"";
+
+                MessageBox.Show(message, "HD Diagnostic Utility");
+
+                issuesDetected = true;
+            }
+
+            int defaultGateways = Diagnosis.DiagnoseMultipleDefaultGateways(routingTable);
+            if(defaultGateways == 0)
+            {
+                string message =
+                    "Detected: There is no default gateway in the IP routing table.\n\n" +
+                    "Create a report to send to your support staff\n" +
+                    "by choosing \"Generate Text Report.\" in the main dialog.";
+
+                MessageBox.Show(message, "HD Diagnostic Utility");
+
+                issuesDetected = true;
+            }
+            else if(defaultGateways > 1)
+            {
+                string message =
+                    "Detected: There are multiple default gateways in the IP routing table.\n\n" +
+                    "There may be more than one active network interface.\n" +
+                    "When more than one network interface is active, Windows\n" +
+                    "can become confused and route network traffic incorrectly.\n\n" +
+                    "In the main dialog, choose \"Manage Network Adapters\"\n" +
+                    "and ensure the only enabled adapter is the \"Wi-Fi\" adapter.\n\n" +
+                    "If the problem persists, choose \"Disable Tunnelling\" in\n" +
+                    "the main dialog.\n\n" +
+                    "If the problem still persists, create a report to send\n" +
+                    "to your support staff by choosing \"Generate Text Report.\"";
+
+                MessageBox.Show(message, "HD Diagnostic Utility");
+
+                issuesDetected = true;
+            }
+
+            if(localIP == null)
+            {
+                string message =
+                    "Detected: Failed to determine the local IP.\n\n" +
+                    "There is no local IP available.\n\n" +
+                    "Create a report to send to your support staff\n" +
+                    "by choosing \"Generate Text Report.\" in the main dialog.";
+
+                MessageBox.Show(message, "HD Diagnostic Utility");
+
+                issuesDetected = true;
+            }
+            else if(Diagnosis.DiagnoseLocalIpUnrecognizedRange(localIP))
+            {
+                string message =
+                    "Detected: Local IP is not in a known RPI network range.\n\n" +
+                    "Create a report to send to your support staff\n" +
+                    "by choosing \"Generate Text Report.\" in the main dialog.";
+
+                MessageBox.Show(message, "HD Diagnostic Utility");
+
+                issuesDetected = true;
+            }
+
+            if(Diagnosis.DiagnoseNetBIOSOverTcpip(wifiAdapter))
+            {
+                string message =
+                    "Detected: NetBIOS over TCP/IP is enabled.\n\n" +
+                    "In the main dialog, choose \"Disable NetBIOS over TCP/IP.\"\n\n" +
+                    "If the problem persists, create a report to send\n" +
+                    "to your support staff by choosing \"Generate Text Report.\"";
 
                 MessageBox.Show(message, "HD Diagnostic Utility");
 
@@ -83,6 +172,8 @@ namespace hddiag
             button6.Enabled = false;
             button7.Enabled = false;
             button8.Enabled = false;
+            button9.Enabled = false;
+            button10.Enabled = false;
             label4.Visible = true;
             label4.Enabled = true;
         }
@@ -108,6 +199,8 @@ namespace hddiag
             button6.Enabled = true;
             button7.Enabled = true;
             button8.Enabled = true;
+            button9.Enabled = true;
+            button10.Enabled = true;
             label4.Visible = false;
         }
 
@@ -253,6 +346,7 @@ namespace hddiag
                 "nslookup www.cnn.com",
                 "netsh wlan show interfaces",
                 "netsh wlan show networks",
+                "netsh wlan show networks mode=bssid",
                 "netsh wlan show profiles",
                 "date /t",
                 "time /t"
@@ -328,6 +422,59 @@ namespace hddiag
 
                 MessageBox.Show(message);
             }
+
+            EnableAllButtons();
+        }
+
+        //disable netBIOS over tcp/ip
+        private void button9_Click(object sender, EventArgs e)
+        {
+            DisableAllButtons();
+
+            NetworkInterface wifiAdapter = Diagnosis.GetAdapter("Wi-Fi");
+
+            if (wifiAdapter == null)
+            {
+                GreyProgressText();
+
+                string message =
+                    "Failed to get the wi-fi adapter.\n\n" +
+                    "The interface may be offline or nonexistant.\n\n" +
+                    "In the main dialog, choose \"Manage Network Adapters\"" +
+                    "and ensure the adapter named \"Wi-Fi\" exists, and is enabled.\n\n" +
+                    "If the problem persists, create a report to send\n" +
+                    "to your support staff by choosing \"Generate Text Report.\"";
+
+                MessageBox.Show(message, "HD Diagnostic Utility");
+
+                EnableAllButtons();
+            }
+            else
+            {
+                string netBIOSKey = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\NetBT\\Parameters\\Interfaces\\Tcpip_" + wifiAdapter.Id;
+
+                //just set to 0 (acquire via dhcp, the default)
+                uint netBIOSSetting = 0; //0=acquire via dhcp, 2= disable
+                Registry.SetValue(netBIOSKey, "NetbiosOptions", netBIOSSetting, RegistryValueKind.DWord);
+
+                GreyProgressText();
+
+                MessageBox.Show(this, "Command completed successfully.\nPlease restart for the changes to take effect.", "HD Diagnostic Utility");
+
+                EnableAllButtons();
+            }
+        }
+
+        //enable DHCP to obtain a local IP address
+        private void button10_Click(object sender, EventArgs e)
+        {
+            DisableAllButtons();
+
+            ExecuteCommand("netsh interface ip set address \"Wi-Fi\" dhcp");
+
+            GreyProgressText();
+
+            MessageBox.Show(this, "Command completed successfully.", "HD Diagnostic Utility");
 
             EnableAllButtons();
         }
