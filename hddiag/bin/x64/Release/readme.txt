@@ -48,5 +48,12 @@ configured Windows installation.
 * Increase rpi_wpa2 Priority - Every wireless network is assigned a priority by Windows. This priority determines which network
   is connected to if multiple preferred networks are available. This option will change rpi_wpa2 to highest priority, and eduroam
   to second-highest priority.
+  
+* Disable Tunnelling - If you've never heard of Teredo tunnelling or don't use it, it's best to disable it. Windows can get
+  confused if tunnelling is enabled, and become unsure of which adapter to route traffic through.
+
+* Disable IPv6 Privacy - Privacy addressing can cause a number of issues, namely: it can exhaust the IP address pool on
+  a network; and some applications with long-running sessions can get confused. In addition, it doesn't actually offer
+  a real privacy advantage, at least on RPI's network.
 
 * Manage Network Adapters - Opens the Network Adapters location in Control Panel.
